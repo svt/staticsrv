@@ -16,3 +16,4 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_PASS }}
           repository: sverigestelevision/staticsrv
           tag_with_ref: true
+          file: ./docker/build.dockerfile
