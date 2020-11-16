@@ -26,6 +26,6 @@ jobs:
           context: .
           file: ./docker/build.dockerfile
           push: true
-          tags:
-            - sverigestelevision/staticsrv:latest
-            - sverigestelevision/staticsrv:${{ env.RELEASE_VERSION }}
+          tags: |
+            sverigestelevision/staticsrv:latest
+            sverigestelevision/staticsrv:${{ env.RELEASE_VERSION }}
