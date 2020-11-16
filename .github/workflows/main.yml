@@ -12,17 +12,20 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v2
       - name: Set environment
-        id: vars
+        id: environment
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
-      - name: Build and push image to registry
-        uses: docker/build-push-action@v2.1.0
-        env:
-          RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_HUB_USER }}
           password: ${{ secrets.DOCKER_HUB_PASS }}
-          repository: sverigestelevision/staticsrv
-          tag_with_ref: true
+      - name: Build and push image to registry
+        uses: docker/build-push-action@v2
+        env:
+          RELEASE_VERSION: ${{ steps.environment.outputs.tag }}
+        with:
+          push: true
+          no-cache: true
           context: .
           file: ./docker/build.dockerfile
           tags: |
