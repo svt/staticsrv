@@ -25,7 +25,6 @@ jobs:
           tag_with_ref: true
           context: .
           file: ./docker/build.dockerfile
-          push: true
           tags: |
             sverigestelevision/staticsrv:latest
             sverigestelevision/staticsrv:${{ env.RELEASE_VERSION }}
