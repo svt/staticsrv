@@ -1,5 +1,7 @@
 #!/bin/sh
 
+go mod vendor
+
 GO_IN=${GO_IN:-"./"}
 GO_OUT=${GO_OUT:-"build/staticsrv"}
 
