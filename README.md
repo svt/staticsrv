@@ -96,7 +96,7 @@ If you hit the configuration endpoint, you should receive a response like this, 
 }
 ```
 
-To disable webserver from serving the `/config.json` file,
+To disable webserver from serving the `/config.json` file.
 
 ```zsh
 $ staticsrv -disable-config-variables
@@ -115,7 +115,6 @@ By default prometheus metrics can be scraped through http on `/metrics` on port 
 $ staticsrv -enable-metrics -metrics-addr :2112 -metrics-path /stats
 ```
 
-
 ## Installing
 
 ### From source
@@ -129,3 +128,6 @@ $ go install
 This project is not without dependencies, below we detail the intent of our dependencies and provide links to their source.
 
 - We use the [official prometheus go client](https://github.com/prometheus/client_golang) to provide endpoints for prometheus to scrape metrics from the web server. The dependency is also licensed under `Apache 2.0`.
+
+## Primary Maintainers
+- [Zee Philip Vieira](https://github.com/zeeraw)
