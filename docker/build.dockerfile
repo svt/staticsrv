@@ -28,4 +28,4 @@ ONBUILD USER 1000:1000
 ONBUILD WORKDIR /srv/www
 ONBUILD EXPOSE 8080:8080
 ONBUILD EXPOSE 9090:9090
-ONBUILD CMD ["/bin/staticsrv", "-enable-metrics"]
+ONBUILD CMD ["/bin/staticsrv"]

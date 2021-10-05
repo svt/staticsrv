@@ -131,3 +131,7 @@ This project is not without dependencies, below we detail the intent of our depe
 
 ## Primary Maintainers
 - [Zee Philip Vieira](https://github.com/zeeraw)
+
+## Changelog
+### v0.1.0
+- Do not enable metrics by default within the docker image. This is a breaking change for people relying on the docker image to expose metrics as is.
