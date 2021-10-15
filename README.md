@@ -46,6 +46,8 @@ $ staticsrv -h
 #     	enables serving of fallback file (index.html) for any missing file
 #   -enable-metrics
 #     	enable scraping application metrics
+#   -enable-request-logs
+#     	enable request log from the server to stdout
 #   -metrics-addr string
 #     	network interface to expose for serving prometheus metrics (default "0.0.0.0:9090")
 #   -metrics-path string
