@@ -3,8 +3,7 @@ RUN apk update && \
     apk --no-cache add \
         ca-certificates \
         tzdata \
-        git \
-        upx
+        git
 
 ENV CGO_ENABLED "0"
 ENV GO_OUT "/build/staticsrv"

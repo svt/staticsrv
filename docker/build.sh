@@ -19,4 +19,3 @@ go build \
     " \
     ${GO_IN}
 
-upx -q ${GO_OUT}
