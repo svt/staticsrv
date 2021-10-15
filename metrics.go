@@ -96,7 +96,6 @@ func MetricsMiddleware(next http.Handler) http.Handler {
 			"method": r.Method,
 		}).Inc()
 
-		log.Println(float64(lrw.BytesWritten))
 		HTTPRequestsDuration.WithLabelValues().Observe(duration.Seconds())
 		HTTPRequestsSize.WithLabelValues().Observe(float64(lrw.BytesWritten))
 	})
