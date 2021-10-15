@@ -12,7 +12,7 @@ import (
 	"path"
 	"strings"
 
-	_ "github.com/prometheus/client_golang/prometheus"
+	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -46,6 +46,10 @@ const (
 	DefaultIndexFile = "index.html"
 )
 
+func init() {
+	log.SetFlags(0)
+}
+
 func main() {
 	var (
 		addr              string       // host interface
@@ -57,9 +61,10 @@ func main() {
 		disableConfigVars bool         // used to determine if the web server should provide a /config.json endpoint
 		enableFallback    bool         // enable fallback
 		enableMetrics     bool         // enable prometheus metrics
+		enableRequestLogs bool         // enable request logs
 		printVersion      bool         // use to print the version of the binary
 		bin               = os.Args[0] // name of the entrypoint
-		root              = "/"        // url path to host the directory under
+		rootPath          = "/"        // url path to host the directory under
 	)
 
 	// Setup and parse command line arguments.
@@ -70,6 +75,7 @@ func main() {
 	flags.BoolVar(&disableConfigVars, "disable-config-variables", false, "disables the /config.json endpoint")
 	flags.BoolVar(&enableFallback, "enable-fallback-to-index", false, fmt.Sprintf("enables serving of fallback file (%s) for any missing file", DefaultIndexFile))
 	flags.BoolVar(&enableMetrics, "enable-metrics", false, "enable scraping application metrics")
+	flags.BoolVar(&enableRequestLogs, "enable-request-logs", false, "enable request log from the server to stdout")
 	flags.BoolVar(&printVersion, "version", false, "print the current version number of staticsrv")
 	flags.StringVar(&configVars, "config-variables", "", "comma separated list of environment variables to expose in /config.json")
 	flags.StringVar(&metricsAddr, "metrics-addr", DefaultMetricsAddr, "network interface to expose for serving prometheus metrics")
@@ -115,48 +121,56 @@ func main() {
 	}
 
 	if err := CheckFile(dir, DefaultIndexFile); err != nil {
-		log.Printf("warning: %v: required to display the website\n", err)
+		fmt.Printf("warning: %v: required to display the website\n", err)
 	}
 
 	// We use a mux to be able to split traffic between the filesystem and some special case paths.
-	mux := http.NewServeMux()
+	root := mux.NewRouter()
 
 	if !disableChecks {
 		// To enable this web service for kubernetes, we provide `livez` and `readyz` endpoints.
-		log.Printf("liveliness check available on %q\n", DefaultLivelinessPath)
-		mux.HandleFunc(DefaultLivelinessPath, HandleOK)
+		fmt.Printf("liveliness check available on %q\n", DefaultLivelinessPath)
+		root.HandleFunc(DefaultLivelinessPath, HandleOK)
 
-		log.Printf("readiness check available on %q\n", DefaultReadinessPath)
-		mux.HandleFunc(DefaultReadinessPath, HandleOK)
+		fmt.Printf("readiness check available on %q\n", DefaultReadinessPath)
+		root.HandleFunc(DefaultReadinessPath, HandleOK)
 
-		mux.HandleFunc("/healthz", HandleOK) // Deprecated since kubernetes 1.16
+		root.HandleFunc("/healthz", HandleOK) // Deprecated since kubernetes 1.16
 	}
 
 	// Provide a /config.json endpoint unless it's been disabled.
 	if !disableConfigVars {
-		log.Printf("configuration variables available on %q\n", DefaultConfigPath)
+		fmt.Printf("configuration variables available on %q\n", DefaultConfigPath)
 		env := ParseCommaSeparatedVars(configVars)
-		mux.HandleFunc(DefaultConfigPath, HandleConfig(env))
+		root.HandleFunc(DefaultConfigPath, HandleConfig(env))
 	}
 
 	// Host the input directory as a filesystem on the root path.
 	if enableFallback {
-		log.Printf("requests on missing content will automatically serve %q with status %d\n", DefaultIndexFile, http.StatusOK)
+		fmt.Printf("requests on missing content will automatically serve %q with status %d\n", DefaultIndexFile, http.StatusOK)
 	}
-	mux.Handle(root, HandleStaticContent(dir, enableFallback))
+
+	content := root.NewRoute().Subrouter()
+	if enableMetrics {
+		content.Use(MetricsMiddleware)
+	}
+	if enableRequestLogs {
+		content.Use(LoggingMiddleware)
+	}
+	content.PathPrefix(rootPath).HandlerFunc(HandleStaticContent(dir, enableFallback))
 
 	if enableMetrics {
 		mux := http.NewServeMux()
 		mux.Handle(metricsPath, promhttp.Handler())
-		log.Printf("serving prometheus metrics through %s on %q\n", metricsAddr, metricsPath)
+		fmt.Printf("serving prometheus metrics through %s on %q\n", metricsAddr, metricsPath)
 		// Spin up the metrics server in a go routine and crash the server if metrics fail.
 		go func() {
 			log.Fatal(http.ListenAndServe(metricsAddr, mux))
 		}()
 	}
 
-	log.Printf("serving site from %q through %s on %q\n", dir, addr, path.Join(root))
-	log.Fatal(http.ListenAndServe(addr, mux))
+	fmt.Printf("serving site from %q through %s on %q\n", dir, addr, path.Join(rootPath))
+	log.Fatal(http.ListenAndServe(addr, root))
 }
 
 // HandleStaticContent is the main method for serving content.
@@ -171,12 +185,12 @@ func HandleStaticContent(dir string, fallback bool) http.HandlerFunc {
 			if _, err := rootdir.Open(p); os.IsNotExist(err) {
 				f, err := rootdir.Open(DefaultIndexFile)
 				if err != nil {
-					log.Printf("request error: %v", err)
+					fmt.Printf("request error: %v", err)
 					return
 				}
 				buf := bufio.NewReader(f)
 				if _, err := buf.WriteTo(w); err != nil {
-					log.Printf("request error: %v", err)
+					fmt.Printf("request error: %v", err)
 					return
 				}
 				return
