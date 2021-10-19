@@ -117,6 +117,17 @@ By default prometheus metrics can be scraped through http on `/metrics` on port 
 $ staticsrv -enable-metrics -metrics-addr :2112 -metrics-path /stats
 ```
 
+### Request access log
+You might want to enable access logs if you want to perform analysis on requests to your site. When enabling the access log the log output will post to stderr using the [logfmt](https://brandur.org/logfmt) format.
+
+```zsh
+$ staticsrv -enable-access-log
+method=GET duration=7.48875ms size=624B size_bytes=624 status=200 path="/" time=1634312038387629000
+method=GET duration=129.875µs size=406B size_bytes=406 status=200 path="/index.css" time=1634312038433253000
+method=GET duration=117.666µs size=367B size_bytes=367 status=200 path="/index.js" time=1634312038434145000
+method=GET duration=153.416µs size=624B size_bytes=624 status=200 path="/" time=1634312038600024000
+```
+
 ## Installing
 
 ### From source
