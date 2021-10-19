@@ -61,7 +61,7 @@ func main() {
 		disableConfigVars bool         // used to determine if the web server should provide a /config.json endpoint
 		enableFallback    bool         // enable fallback
 		enableMetrics     bool         // enable prometheus metrics
-		enableRequestLogs bool         // enable request logs
+		enableAccessLog   bool         // enable access log to see all requests to your server to stderr
 		printVersion      bool         // use to print the version of the binary
 		bin               = os.Args[0] // name of the entrypoint
 		rootPath          = "/"        // url path to host the directory under
@@ -75,7 +75,7 @@ func main() {
 	flags.BoolVar(&disableConfigVars, "disable-config-variables", false, "disables the /config.json endpoint")
 	flags.BoolVar(&enableFallback, "enable-fallback-to-index", false, fmt.Sprintf("enables serving of fallback file (%s) for any missing file", DefaultIndexFile))
 	flags.BoolVar(&enableMetrics, "enable-metrics", false, "enable scraping application metrics")
-	flags.BoolVar(&enableRequestLogs, "enable-request-logs", false, "enable request log from the server to stdout")
+	flags.BoolVar(&enableAccessLog, "enable-access-log", false, "enable access log to see all requests to your server to stderr")
 	flags.BoolVar(&printVersion, "version", false, "print the current version number of staticsrv")
 	flags.StringVar(&configVars, "config-variables", "", "comma separated list of environment variables to expose in /config.json")
 	flags.StringVar(&metricsAddr, "metrics-addr", DefaultMetricsAddr, "network interface to expose for serving prometheus metrics")
@@ -154,7 +154,7 @@ func main() {
 	if enableMetrics {
 		content.Use(MetricsMiddleware)
 	}
-	if enableRequestLogs {
+	if enableAccessLog {
 		content.Use(LoggingMiddleware)
 	}
 	content.PathPrefix(rootPath).HandlerFunc(HandleStaticContent(dir, enableFallback))

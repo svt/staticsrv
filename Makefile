@@ -5,4 +5,4 @@ build:
 clean:
 	@ docker rmi ${DOCKER_IMAGE}
 start:
-	go run ./... -addr=127.0.0.1:8080 -metrics-addr=127.0.0.1:9090 -enable-request-logs -enable-metrics -config-variables=USER ./example
+	go run ./... -addr=127.0.0.1:8080 -metrics-addr=127.0.0.1:9090 -enable-access-log -enable-metrics -config-variables=USER ./example
