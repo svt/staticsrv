@@ -155,6 +155,9 @@ This project is not without dependencies, below we detail the intent of our depe
 - [Zee Philip Vieira](https://github.com/zeeraw)
 
 ## Changelog
+### v0.2.0
+- Feature: Added request metrics to prometheus export
+- Feature: Added request access logs that can be enabled with a flag to the server
 ### v0.1.1
 - Fix: We were still exposing 9090 in the docker image using ONBUILD.
 ### v0.1.0
