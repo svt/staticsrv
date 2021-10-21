@@ -140,7 +140,7 @@ method=GET duration=153.416µs size=624B size_bytes=624 status=200 path="/" time
 ## Installing
 
 ### From source
-The tool is built with `Go 1.15`, but any version down to `Go 1.11` should work just fine to build. To install to go bin path, just run `go install` in this repo and make sure your go bin directory is set in your path.
+The tool is built with `Go 1.17`, but any version down to `Go 1.11` should work just fine to build. To install to go bin path, just run `go install` in this repo and make sure your go bin directory is set in your path.
 
 ```zsh
 $ go install
