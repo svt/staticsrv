@@ -117,6 +117,15 @@ By default prometheus metrics can be scraped through http on `/metrics` on port 
 $ staticsrv -enable-metrics -metrics-addr :2112 -metrics-path /stats
 ```
 
+#### Metrics Exposed
+Here's a table with all the metrics that are exposed by the server through the metrics endpoint. We also expose some metrics for the Go process using the [Go prometheus library](https://github.com/prometheus/client_golang/blob/master/prometheus/go_collector.go).
+
+|name|type|labels|description|
+|----|----|------|-----------|
+|`staticsrv_http_requests_total`|Counter|`method`, `status`|Total amount of requests made to the server process|
+|`staticsrv_http_requests_duration_seconds`|Histogram||Request time in seconds (with fractions)|
+|`staticsrv_http_requests_size_bytes`|Histogram||Request size in bytes|
+
 ### Request access log
 You might want to enable access logs if you want to perform analysis on requests to your site. When enabling the access log the log output will post to stderr using the [logfmt](https://brandur.org/logfmt) format.
 
