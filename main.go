@@ -203,7 +203,9 @@ func HandleStaticContent(dir string, fallback bool) http.HandlerFunc {
 // HandleOK is used to respond well to the health probes.
 func HandleOK(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("ok"))
+	if _, err := w.Write([]byte("ok")); err != nil {
+		log.Printf("cannot ok response: %v", err)
+	}
 }
 
 // HandleConfig returns a handler that will will respond with the provided
@@ -217,7 +219,9 @@ func HandleConfig(env map[string]string) http.HandlerFunc {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write(raw)
+		if _, err := w.Write(raw); err != nil {
+			log.Printf("cannot write config response: %v", err)
+		}
 		return
 	}
 }
