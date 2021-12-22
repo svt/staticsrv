@@ -155,6 +155,8 @@ This project is not without dependencies, below we detail the intent of our depe
 - [Zee Philip Vieira](https://github.com/zeeraw)
 
 ## Changelog
+### v0.2.1
+- Fix: Handle unhandled errors when writing responses.
 ### v0.2.0
 - Feature: Added request metrics to prometheus export
 - Feature: Added request access logs that can be enabled with a flag to the server
