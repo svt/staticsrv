@@ -11,6 +11,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -44,6 +45,15 @@ const (
 
 	// DefaultIndexFile is used to determine the name of the index files to be looked up.
 	DefaultIndexFile = "index.html"
+
+	// DefaultReadTimeout is the maximum duration for reading the entire request, including the body.
+	DefaultReadTimeout = 5
+
+	// DefaultWriteTimeout is the maximum duration before timing out writes of the response.
+	DefaultWriteTimeout = 5
+
+	// DefaultIdleTimeout is the maximum amount of time to wait for the next request when keep-alives are enabled.
+	DefaultIdleTimeout = 60
 )
 
 func init() {
@@ -63,6 +73,9 @@ func main() {
 		enableMetrics     bool         // enable prometheus metrics
 		enableAccessLog   bool         // enable access log to see all requests to your server to stderr
 		printVersion      bool         // use to print the version of the binary
+		readTimeout       int          // the maximum duration for reading the entire request
+		writeTimeout      int          // the maximum duration before timing out writes of the response
+		idleTimeout       int          // the maximum amount of time to wait for the next request when keep-alives are enabled
 		bin               = os.Args[0] // name of the entrypoint
 		rootPath          = "/"        // url path to host the directory under
 	)
@@ -80,6 +93,9 @@ func main() {
 	flags.StringVar(&configVars, "config-variables", "", "comma separated list of environment variables to expose in /config.json")
 	flags.StringVar(&metricsAddr, "metrics-addr", DefaultMetricsAddr, "network interface to expose for serving prometheus metrics")
 	flags.StringVar(&metricsPath, "metrics-path", DefaultMetricsPath, "http path where prometheus metrics are exported")
+	flags.IntVar(&readTimeout, "timeout-read", DefaultReadTimeout, "the maximum duration for reading the entire request")
+	flags.IntVar(&writeTimeout, "timeout-write", DefaultWriteTimeout, "the maximum duration before timing out writes of the response")
+	flags.IntVar(&idleTimeout, "timeout-idle", DefaultIdleTimeout, "the maximum amount of time to wait for the next request")
 
 	flags.Usage = func() {
 		fmt.Fprintf(flags.Output(), "Usage: %s [OPTIONS] [DIR]\nConfiguration Options:\n", bin)
@@ -165,12 +181,26 @@ func main() {
 		fmt.Printf("serving prometheus metrics through %s on %q\n", metricsAddr, metricsPath)
 		// Spin up the metrics server in a go routine and crash the server if metrics fail.
 		go func() {
-			log.Fatal(http.ListenAndServe(metricsAddr, mux))
+			metricsSrv := &http.Server{
+				Addr:         metricsAddr,
+				Handler:      mux,
+				ReadTimeout:  5 * time.Second,
+				WriteTimeout: 5 * time.Second,
+				IdleTimeout:  20 * time.Second,
+			}
+			log.Fatal(metricsSrv.ListenAndServe())
 		}()
 	}
 
+	mainSrv := &http.Server{
+		Addr:         addr,
+		Handler:      root,
+		ReadTimeout:  time.Duration(readTimeout) * time.Second,
+		WriteTimeout: time.Duration(writeTimeout) * time.Second,
+		IdleTimeout:  time.Duration(idleTimeout) * time.Second,
+	}
 	fmt.Printf("serving site from %q through %s on %q\n", dir, addr, path.Join(rootPath))
-	log.Fatal(http.ListenAndServe(addr, root))
+	log.Fatal(mainSrv.ListenAndServe())
 }
 
 // HandleStaticContent is the main method for serving content.

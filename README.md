@@ -52,6 +52,12 @@ $ staticsrv -h
 #     	network interface to expose for serving prometheus metrics (default "0.0.0.0:9090")
 #   -metrics-path string
 #     	http path where prometheus metrics are exported (default "/metrics")
+#   -timeout-idle int
+#       the maximum amount of time to wait for the next request (default 60)
+#   -timeout-read int
+#       the maximum duration for reading the entire request (default 5)
+#   -timeout-write int
+#       the maximum duration before timing out writes of the response (default 5)
 #   -version
 #     	print the current version number of staticsrv
 ```
