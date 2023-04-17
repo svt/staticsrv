@@ -161,6 +161,9 @@ This project is not without dependencies, below we detail the intent of our depe
 - [Zee Philip Vieira](https://github.com/zeeraw)
 
 ## Changelog
+### v0.3.0
+- Fix: Set timeout values for HTTP requsts.
+- Chore: update OS for build-container.
 ### v0.2.1
 - Fix: Handle unhandled errors when writing responses.
 ### v0.2.0
