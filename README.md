@@ -157,6 +157,15 @@ This project is not without dependencies, below we detail the intent of our depe
 
 - We use the [official prometheus go client](https://github.com/prometheus/client_golang) to provide endpoints for prometheus to scrape metrics from the web server. The dependency is also licensed under `Apache 2.0`.
 
+## Release process
+1. Create an annotated tag and push
+[Github Actions](.github/workflows) publishes a new image on [Docker Hub](https://hub.docker.com/r/sverigestelevision/staticsrv), once a new tag like "v\*.\*.\*" (e.g. v0.3.0) is created.
+```
+git tag -s -a v${version} -m "v${version}"
+git push origin v${version}
+```
+2. Create a new release on github, according to the [instruction](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository). Preferably use Auto-generate release notes for the notes so we don't forget any changes.
+
 ## Primary Maintainers
 - [Zee Philip Vieira](https://github.com/zeeraw)
 
