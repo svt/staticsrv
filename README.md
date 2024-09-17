@@ -1,5 +1,10 @@
 # staticsrv
-The command line tool for hosting a directory as a website.
+
+**staticsrv is no longer maintained actively by SVT. Issues, pull requests etc will most likely not be handled. Our thanks to everyone involved in its lifecycle.**
+
+**If you still use staticsrv, we recommend a static content hosting service or the fully featured [Static web server (SWS)](https://static-web-server.net/) as replacement.**
+
+staticsrv is a command line tool for hosting a directory as a website.
 
 ## Quick Start: Docker
 The easiest way to get started with this tool is to include the docker image in your repository.
